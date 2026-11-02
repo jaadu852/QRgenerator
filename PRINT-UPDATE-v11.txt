@@ -1,0 +1,7 @@
+v11 updates based on print preview:
+- Four 105 x 105 mm cards are now centered as a 210 x 210 mm group on A4 (approx. 43.5 mm top and bottom whitespace).
+- Card images are forced square with zero border radius. The old rounded corner cutouts are filled by extending adjacent artwork pixels to the card edges.
+- Sample QR area is cleared fully inside the blue brackets.
+- Dynamic QR remains SVG/vector with crisp-edge rendering and explicit SVG MIME type.
+- Print dialog: A4 portrait, margins None, scale 100%, headers/footers off. If printer has non-printable margins, select borderless or print commercially.
+- Artwork is photo-derived; sharpening helps slightly but cannot recover details absent from the original source. Vector QR remains sharp independent of artwork.

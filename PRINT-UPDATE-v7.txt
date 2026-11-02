@@ -1,0 +1,8 @@
+Print update v7
+- A4 print grid now fits 4 exact 4 x 4 inch cards per sheet (2 columns x 2 rows).
+- No gap between adjacent cards.
+- Grid is centered horizontally and vertically. Horizontal side margins are 3.4 mm each; the remaining vertical paper area is split above and below.
+- QR is scaled back slightly and repositioned inside the blue corner brackets, so the white patch no longer spills over the frame.
+- QR ID is printed immediately below the QR and above the original SCAN QR CODE text.
+- Original reference artwork and 4 x 4 inch card dimensions are retained.
+Printer note: This layout requires a printer capable of printing with 3.4 mm side margins. If the printer has larger non-printable margins, it may clip the card edges; use borderless or commercial printing, or choose a smaller card size.

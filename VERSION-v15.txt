@@ -1,0 +1,1 @@
+v15 - Uses the user's root-level logo.png as the complete sticker artwork without recreating any part of the design. Transparent QR PNG overlay calibrated to the supplied 2048 x 2048 logo: left 64.0%, top 52.1%, size 20.0%; QR ID below at 72.5%. Sticker size 103 x 103 mm; four-up A4, zero gaps.

@@ -1,0 +1,1 @@
+v6: Increased the dynamic QR image from 22% to 24.5% of the 4x4-inch card (about 24.9 mm square), repositioned centrally within the printed blue corner-bracket area. Underlying card artwork and other functions unchanged.

@@ -1,0 +1,20 @@
+CLOUDKRAFTS QR MANAGER v15 - ROOT LOGO + QR OVERLAY
+
+Use your own artwork:
+- Put your square 2048 x 2048 (or other square resolution) logo file in this folder beside server.py.
+- Name it exactly logo.png.
+- The software loads /logo.png as the complete sticker artwork. It does not recreate or redraw the card.
+
+QR overlay is placed in the empty blue-bracket area of the supplied logo:
+- Left: 64.0% of sticker width
+- Top: 52.1% of sticker height
+- Size: 20.0% x 20.0% (20.6 mm on a 103 mm sticker)
+- Output: transparent PNG; black QR modules only, transparent quiet zone.
+- QR generation: error correction H, 32 px/module (about 1312 px square).
+- QR ID: centered below QR at 72.5% from top.
+
+The QR's transparent quiet zone allows the white logo area to show through. Keep the QR target area plain white/light for reliable scanning.
+
+Sticker print: 103 x 103 mm; four per A4 in 2 x 2 arrangement; zero gaps; centered. Print A4 portrait, actual size 100%, no margins, no headers/footers. Borderless or compatible printer margins are required.
+
+Do not put logo.png in assets. It must sit beside server.py.

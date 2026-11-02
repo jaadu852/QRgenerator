@@ -1,0 +1,7 @@
+v13 - Exact reference artwork and 103 mm square
+- Uses the user's supplied reference card image, cropped to the card only; no reinterpreted/redesigned vector layout.
+- Replaces the sample QR with the live per-ID vector QR while preserving the reference typography, logo, NFC illustration, waves, and composition.
+- Finished card size exactly 103 x 103 mm, square corners.
+- Four cards per A4 in a 2x2 grid, zero gap, centered on the page. Group occupies 206 x 206 mm, leaving 2 mm horizontal side margins and 45.5 mm top/bottom whitespace.
+- Card image is 2400 x 2400 pixels (600dpi metadata). The source reference screenshot itself is about 599 x 599 pixels; upscaling cannot recreate missing fine detail, but this retains the exact supplied design.
+- Print at A4 portrait, Actual Size/100%, margins None, headers/footers off. Printer must support 2 mm side margins or borderless mode.

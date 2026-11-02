@@ -1,0 +1,7 @@
+v9 print and QR update
+- Exact A4 portrait @page with 0mm CSS margins.
+- Four 105 x 105 mm cards in a 2x2 grid, zero gaps.
+- Each card explicitly fixed to 105 x 105 mm with border-box sizing and no margins/borders.
+- QR PNG native module pixel size increased from 18 to 32, retaining transparent background.
+- Important: Browser/driver print dialog must be A4, portrait, margins=None, scale=100%, headers/footers off. If the printer cannot borderlessly print 210mm width, it will clip or shrink; select borderless A4 or use commercial printing.
+- The card background artwork remains a photograph-derived raster. Upscaling cannot restore original missing detail. For genuinely crisp UHD artwork, provide the original design PDF/SVG/AI/PSD or a high-resolution flat artwork file. QR output itself is now generated at higher native resolution.

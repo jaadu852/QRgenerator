@@ -1,0 +1,1 @@
+v14: Root-level logo.png is the card artwork. High-resolution transparent QR PNG with H error correction and 32 px/module. Calibrated overlay at 65.0% left, 53.0% top, 18.2% square; QR ID at 71.3%. Card 103 x 103 mm, four-up A4, zero gaps.

@@ -1,0 +1,3 @@
+Vendor creation issue fixed in v4.
+The earlier build had a malformed SQL query in the dashboard refresh. The vendor could be inserted successfully, then the refresh request crashed, which caused the browser to show "Failed to fetch".
+After installing v4, start the server and refresh the page. Check the Vendors table before creating another vendor; the previous attempt may already have created it.

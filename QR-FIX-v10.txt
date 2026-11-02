@@ -1,0 +1,8 @@
+v10 QR rendering fix
+- Root cause of double/messy QR: the reference artwork still contained its printed sample QR; v9's .qrreplace was display:none, so the new QR was layered over the old one.
+- Both card backgrounds now have the sample QR area cleaned to white inside the blue guide brackets.
+- White quiet-zone patch is enabled behind the dynamic QR.
+- QR is served as vector SVG with high error correction, a four-module quiet zone and crisp-edged geometry; this stays sharp when zoomed and avoids raster blur.
+- QR is centered in the right-side blue bracket field; QR ID has its own white label strip below the code and no longer overlaps modules.
+- A4 remains four 105 x 105 mm cards, zero gaps.
+- Background card artwork is still based on the user's low-resolution photograph; SVG QR is vector-sharp, but the photographic artwork cannot become truly UHD without an original vector/high-resolution design file.

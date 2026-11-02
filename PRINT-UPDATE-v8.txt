@@ -1,0 +1,9 @@
+CloudKrafts QR Manager v8
+- Sticker size changed to exactly 105 x 105 mm.
+- A4 output: 2 x 2 cards, 4 per sheet, zero gap between adjacent cards.
+- Requires borderless A4 printing because two 105mm cards exactly occupy the 210mm paper width. A non-borderless printer may clip edges.
+- QR generated as transparent PNG (black modules only; transparent quiet zone), so the clean white QR field in the artwork remains visible without an opaque white overlay.
+- QR area enlarged and repositioned inside original blue corner guides.
+- QR ID printed immediately beneath QR.
+- Artwork cleaned of the sample QR, then upscaled and sharpened to 2480 x 2480 px at 600 dpi metadata for high-resolution print rendering. This improves raster output but cannot recreate detail absent from the original photo.
+- Existing SQLite database remains compatible; copy local-data.sqlite3 into this folder when upgrading.
