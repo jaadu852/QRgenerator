@@ -1,0 +1,12 @@
+v16 print and batch history fix
+
+- Printing now creates a real PDF on the Python backend with ReportLab.
+- The user's root-level logo.png is embedded directly in the PDF at its original pixel resolution (no browser print preview rasterization/resampling).
+- QR codes are regenerated as transparent high-resolution PNG overlays and embedded at the calibrated 20% card size.
+- PDF page size is A4; four exact 103 x 103 mm stickers are centered in a 2x2 layout with zero gaps.
+- QR IDs are printed below their QR codes.
+- The Generate Batch > Print A4 stickers button downloads a ready-to-print PDF.
+- Each batch history "Download / print again" button calls /api/batch-pdf with its batch ID and downloads the matching saved batch PDF. This fixes the previously missing reprintBatch() function.
+- Batch downloaded_at status is updated only after PDF generation succeeds.
+- Print the downloaded PDF at A4, Actual Size / 100%, no "Fit" scaling.
+- Place logo.png in the root beside server.py.

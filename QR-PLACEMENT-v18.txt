@@ -1,0 +1,7 @@
+v18 QR placement calibration from the latest supplied close-up and the actual 2048x2048 root logo.png.
+- Increased QR image overlay from 23% to 28% of sticker width/height (28.84 mm on a 103 mm sticker).
+- Moved overlay left to 61.3% and top to 48.1%, centering the larger QR within the blue corner-bracket area.
+- Retains the transparent four-module quiet zone; this is essential for QR scanner reliability. The black data modules are enlarged while the transparent quiet zone remains clear.
+- QR ID remains below the QR at its existing position.
+- Both server-generated print PDF and browser preview use the same dimensions/placement.
+- Sticker dimensions and A4 layout unchanged.

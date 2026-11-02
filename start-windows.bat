@@ -32,11 +32,11 @@ echo Checking Python installation...
 if errorlevel 1 goto python_error
 
 echo.
-echo Checking QR-code library...
-%PY% -c "import qrcode, PIL" >nul 2>&1
+echo Checking required libraries (QR, Pillow and PDF engine)...
+%PY% -c "import qrcode, PIL, reportlab" >nul 2>&1
 if errorlevel 1 (
-    echo QR library is missing. Installing it now...
-    %PY% -m pip install --user "qrcode[pil]"
+    echo Required libraries are missing. Installing them now...
+    %PY% -m pip install --user "qrcode[pil]" reportlab
     if errorlevel 1 goto library_error
 )
 
@@ -64,7 +64,7 @@ exit /b 1
 :library_error
 echo ERROR: Could not install the QR library.
 echo Check your internet connection, then try again.
-echo You can also run: %PY% -m pip install --user "qrcode[pil]"
+echo You can also run: %PY% -m pip install --user "qrcode[pil]" reportlab
 echo.
 pause
 exit /b 1

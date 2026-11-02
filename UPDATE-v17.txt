@@ -1,0 +1,12 @@
+CloudKrafts QR Manager v17
+
+Changes:
+1. Increased QR overlay in the PDF from 20% to 23% of sticker width/height (23.69 mm on a 103 mm sticker). Repositioned within the logo's blue QR frame; QR ID moved below the larger code.
+2. Added Search QR field and Search QR button in the admin dashboard.
+3. Search by unique ID such as ck000123 opens a popup with current status, shop name and destination URL.
+4. Admin can change status to Unused or Active and save.
+5. Choosing Unused clears shop name, destination URL and management PIN so the QR can be activated again through the vendor activation flow.
+6. Choosing Active requires a valid http/https URL; updates shop name and destination immediately.
+7. Changes are protected by admin password and recorded in the audit log.
+
+Keep logo.png and local-data.sqlite3 from your existing installation. Replace the old software files with this version, then run start-windows.bat.

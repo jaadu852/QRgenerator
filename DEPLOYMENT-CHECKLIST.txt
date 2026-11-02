@@ -1,0 +1,15 @@
+CLOUDKRAFTS QR MANAGER v19 - GO-LIVE CHECKLIST
+
+[ ] Create Supabase Free project and copy Session Pooler PostgreSQL URI
+[ ] Create private GitHub repository and upload extracted package
+[ ] Create Render Blueprint from render.yaml
+[ ] Set DATABASE_URL, ADMIN_PASSWORD, APP_SECRET, PUBLIC_BASE_URL in Render
+[ ] Confirm Render /healthz works
+[ ] Add qr.cloudkrafts.in custom domain in Render
+[ ] Add only the qr CNAME record at current DNS provider
+[ ] Confirm HTTPS works on qr.cloudkrafts.in
+[ ] Back up local-data.sqlite3
+[ ] Migrate existing SQLite records to Supabase (if needed)
+[ ] Verify vendors, QR totals, active redirects, QR search, and batch PDF
+[ ] Test one sample sticker on mobile data before selling
+[ ] Set a recurring backup/export reminder
