@@ -276,12 +276,26 @@ class Handler(BaseHTTPRequestHandler):
    if p=='/api/batch':
     n=int(d.get('count',0));v=int(d.get('vendor',0))
     if not 1<=n<=500:return self.reply({'error':'Choose 1 to 500'},400)
-    with conn() as c:
-     if not c.execute('SELECT id FROM vendors WHERE id=?',(v,)).fetchone():return self.reply({'error':'Vendor not found'},404)
-     first=c.execute('SELECT COALESCE(MAX(CAST(SUBSTR(id,3) AS INTEGER)),0) FROM qr').fetchone()[0];ids=['ck'+str(i).zfill(6) for i in range(first+1,first+n+1)];batch_id='B'+str(first+1).zfill(6)+'-'+secrets.token_hex(2).upper()
-     c.executemany('INSERT INTO qr(id,vendor_id,batch_id) VALUES(?,?,?)',[(x,v,batch_id) for x in ids])
+       with conn() as c:
+     if not c.execute('SELECT id FROM vendors WHERE id=?',(v,)).fetchone():
+      return self.reply({'error':'Vendor not found'},404)
+
+     first_row = c.execute(
+      'SELECT COALESCE(MAX(CAST(SUBSTR(id,3) AS INTEGER)),0) AS max_id FROM qr'
+     ).fetchone()
+
+     first = int(first_row['max_id'])
+
+     ids = ['ck'+str(i).zfill(6) for i in range(first+1,first+n+1)]
+
+     batch_id = 'B'+str(first+1).zfill(6)+'-'+secrets.token_hex(2).upper()
+
+     c.executemany(
+      'INSERT INTO qr(id,vendor_id,batch_id) VALUES(?,?,?)',
+      [(x,v,batch_id) for x in ids]
+     )
+
     return self.reply({'ids':ids,'batch_id':batch_id})
-   if p=='/api/activate':
     if rate_limited(client_ip(self),'activate',limit=8):return self.reply({'error':'Too many activation attempts. Please wait before trying again.'},429)
     id=str(d.get('id','')).strip().lower();shop=str(d.get('shop','')).strip();url=str(d.get('url','')).strip();password=str(d.get('password',''));pin=str(d.get('pin',''))
     if not shop or len(shop)>120 or not validurl(url) or not pin.isdigit() or not 6<=len(pin)<=12:return self.reply({'error':'Enter shop, valid URL and a 6–12 digit PIN'},400)
