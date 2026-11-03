@@ -1,0 +1,7 @@
+
+{
+  "$schema": "https://schema.cloudflare.com/wrangler.json",
+  "name": "cloudkrafts-qr-redirect",
+  "main": "cloudflare-worker.js",
+  "compatibility_date": "2026-11-03"
+}
