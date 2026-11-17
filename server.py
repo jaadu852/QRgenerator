@@ -194,62 +194,168 @@ class Handler(BaseHTTPRequestHandler):
    if p=='/api/batch-pdf':
     import qrcode
     from qrcode.constants import ERROR_CORRECT_H
-    from PIL import Image as PILImage, ImageDraw
+    from PIL import Image as PILImage
     from reportlab.pdfgen import canvas
-    from reportlab.lib.pagesizes import A4
     from reportlab.lib.utils import ImageReader
-    from reportlab.pdfbase.pdfmetrics import stringWidth
+    from reportlab.lib.units import mm
+    from reportlab.lib.colors import CMYKColor
+
     bid=str(d.get('batch_id','')).strip()
     if not bid:return self.reply({'error':'Batch ID is required'},400)
+
     logo=ROOT/'logo.png'
-    if not logo.exists():return self.reply({'error':'logo.png was not found beside server.py. Add your 103 x 103 mm logo.png and retry.'},400)
+    if not logo.exists():
+     return self.reply({'error':'logo.png was not found beside server.py. Add your 4 x 4 inch logo.png and retry.'},400)
+
     with conn() as db:
      rows=db.execute('SELECT id FROM qr WHERE batch_id=? ORDER BY CAST(SUBSTR(id,3) AS INTEGER)',(bid,)).fetchall()
     ids=[r['id'] for r in rows]
     if not ids:return self.reply({'error':'No QR codes found for this batch'},404)
-    # Build a true-size, lossless PDF: original PNG is embedded directly, not browser-resampled.
+
+    # Print layout:
+    # Each card is exactly 4 x 4 inches (101.6 x 101.6 mm).
+    # Five columns x three rows, with 5 mm gaps between cards.
+    CARD_MM=101.6
+    GAP_MM=5.0
+    COLUMNS=5
+    ROWS=3
+    CARDS_PER_PAGE=COLUMNS*ROWS
+    DPI=300
+
+    page_width_mm=(COLUMNS*CARD_MM)+((COLUMNS-1)*GAP_MM)
+    page_height_mm=(ROWS*CARD_MM)+((ROWS-1)*GAP_MM)
+    pagew=page_width_mm*mm
+    pageh=page_height_mm*mm
+    card=CARD_MM*mm
+    gap=GAP_MM*mm
+
+    # Prepare a 300-DPI CMYK logo image for the physical 4 x 4 inch card.
+    # 4 inches x 300 DPI = 1200 pixels per side.
+    # If the supplied source is smaller, it is upsampled; this cannot restore
+    # detail that was not present in the original image.
+    try:
+     with PILImage.open(logo) as opened_logo:
+      # Flatten transparent pixels onto white before CMYK conversion so
+      # transparent PNG areas do not unexpectedly become black.
+      if opened_logo.mode in ('RGBA','LA') or 'transparency' in opened_logo.info:
+       rgba=opened_logo.convert('RGBA')
+       white_bg=PILImage.new('RGBA',rgba.size,(255,255,255,255))
+       white_bg.alpha_composite(rgba)
+       source_logo=white_bg.convert('RGB')
+      else:
+       source_logo=opened_logo.convert('RGB')
+      source_logo=source_logo.resize((int(4*DPI),int(4*DPI)),PILImage.Resampling.LANCZOS)
+      cmyk_logo=source_logo.convert('CMYK')
+      logo_buffer=io.BytesIO()
+      cmyk_logo.save(
+       logo_buffer,
+       format='JPEG',
+       quality=100,
+       subsampling=0,
+       dpi=(DPI,DPI),
+       optimize=True
+      )
+      logo_buffer.seek(0)
+    except Exception as e:
+     return self.reply({'error':'Could not prepare logo.png for CMYK PDF printing: '+str(e)},400)
+
+    # Use DeviceCMYK for PDF drawing operations. The QR pattern itself is
+    # drawn as vector rectangles, so it remains sharp at any print resolution.
     pdfbuf=io.BytesIO()
-    pagew,pageh=A4
-    c=canvas.Canvas(pdfbuf,pagesize=A4,pageCompression=1)
-    card=103*72/25.4
-    gap=0.0
-    group=2*card
-    left=(pagew-group)/2
-    bottom=(pageh-group)/2
+    c=canvas.Canvas(
+     pdfbuf,
+     pagesize=(pagew,pageh),
+     pageCompression=1,
+     enforceColorSpace='CMYK'
+    )
+    c.setTitle('CloudKrafts QR Batch '+bid)
+    c.setAuthor('CloudKrafts QR Manager')
+    logo_reader=ImageReader(logo_buffer)
+
+    # Keep the same QR placement and label placement used in the old 4-card PDF.
     qr_size=card*0.28
     qr_x=card*0.613
     qr_top=card*0.481
     qr_y=card-qr_top-qr_size
     label_top=card*0.742
     label_y=card-label_top-card*0.021
-    logo_reader=ImageReader(str(logo))
-    for page_start in range(0,len(ids),4):
-     page_ids=ids[page_start:page_start+4]
+
+    for page_start in range(0,len(ids),CARDS_PER_PAGE):
+     page_ids=ids[page_start:page_start+CARDS_PER_PAGE]
+
      for j,qid in enumerate(page_ids):
-      col=j%2
-      row=j//2
-      x=left+col*card
-      y=bottom+(1-row)*card
-      c.drawImage(logo_reader,x,y,width=card,height=card,preserveAspectRatio=False,mask='auto')
-      qr= qrcode.QRCode(error_correction=ERROR_CORRECT_H,box_size=32,border=4)
+      col=j%COLUMNS
+      row=j//COLUMNS
+
+      # Place the 4-inch card with a 5-mm gap from its neighbours.
+      x=col*(card+gap)
+      y=pageh-card-(row*(card+gap))
+
+      # CMYK card artwork.
+      c.drawImage(
+       logo_reader,
+       x,
+       y,
+       width=card,
+       height=card,
+       preserveAspectRatio=False,
+       mask=None
+      )
+
+      # Generate a high-error-correction QR code.
+      # The modules are drawn directly as CMYK vector shapes (not a
+      # low-resolution screenshot or browser-rendered image).
+      qr=qrcode.QRCode(
+       error_correction=ERROR_CORRECT_H,
+       box_size=1,
+       border=4
+      )
       target=public_base(self)+'/r/'+qid
-      qr.add_data(target);qr.make(fit=True)
-      matrix=qr.get_matrix();n=len(matrix);scale=32
-      qimg=PILImage.new('RGBA',(n*scale,n*scale),(255,255,255,0))
-      dr=ImageDraw.Draw(qimg)
+      qr.add_data(target)
+      qr.make(fit=True)
+      matrix=qr.get_matrix()
+      module_count=len(matrix)
+      module_size=qr_size/module_count
+
+      c.saveState()
+      c.setFillColorCMYK(0,0,0,1)
       for yy,rowbits in enumerate(matrix):
        for xx,dark in enumerate(rowbits):
-        if dark:dr.rectangle((xx*scale,yy*scale,(xx+1)*scale-1,(yy+1)*scale-1),fill=(0,0,0,255))
-      qbio=io.BytesIO();qimg.save(qbio,format='PNG',optimize=False);qbio.seek(0)
-      c.drawImage(ImageReader(qbio),x+qr_x,y+qr_y,width=qr_size,height=qr_size,mask='auto')
+        if dark:
+         # QR matrix is top-to-bottom; PDF coordinates are bottom-to-top.
+         rect_x=x+qr_x+(xx*module_size)
+         rect_y=y+qr_y+((module_count-1-yy)*module_size)
+         c.rect(rect_x,rect_y,module_size,module_size,stroke=0,fill=1)
+      c.restoreState()
+
+      # QR identifier in CMYK black.
+      c.setFillColorCMYK(0,0,0,1)
       c.setFont('Helvetica-Bold',5.0)
-      label=qid.upper()
-      c.drawCentredString(x+card*0.74,y+label_y+card*0.006,label)
-     c.showPage()
+      c.drawCentredString(
+       x+card*0.74,
+       y+label_y+card*0.006,
+       qid.upper()
+      )
+
+     # Each PDF page holds up to 15 cards.
+     if page_start+CARDS_PER_PAGE<len(ids):
+      c.showPage()
+
     c.save()
-    with conn() as db:db.execute('UPDATE qr SET downloaded_at=CURRENT_TIMESTAMP WHERE batch_id=?',(bid,))
+
+    # Mark this batch as downloaded after the PDF has been successfully built.
+    with conn() as db:
+     db.execute('UPDATE qr SET downloaded_at=CURRENT_TIMESTAMP WHERE batch_id=?',(bid,))
+
     out=pdfbuf.getvalue()
-    self.send_response(200);self.send_header('Content-Type','application/pdf');self.send_header('Content-Disposition','attachment; filename="CloudKrafts-'+bid+'.pdf"');self.send_header('Content-Length',str(len(out)));self.send_header('Cache-Control','no-store');self.end_headers();self.wfile.write(out);return
+    self.send_response(200)
+    self.send_header('Content-Type','application/pdf')
+    self.send_header('Content-Disposition','attachment; filename="CloudKrafts-'+bid+'.pdf"')
+    self.send_header('Content-Length',str(len(out)))
+    self.send_header('Cache-Control','no-store')
+    self.end_headers()
+    self.wfile.write(out)
+    return
    if p=='/api/admin-qr':
     if not self.auth():return self.reply({'error':'Incorrect admin password'},401)
     qid=str(d.get('id','')).strip().lower()
